@@ -6,28 +6,22 @@ from sklearn.preprocessing import LabelEncoder
 import soundfile as sf
 import io
 
-# Cargar el modelo previamente entrenado
 model = tf.keras.models.load_model('experimento4.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
-# Crear un LabelEncoder y ajustarlo a tus etiquetas originales
 label_encoder = LabelEncoder()
-label_encoder.fit(labels)  # Asegúrate de tener las etiquetas originales aquí
+label_encoder.fit(labels)  
 
-# Configurar la interfaz de usuario en Streamlit
 st.title('Detector de Audio')
 
-# Sube un archivo de audio para probar
 uploaded_file = st.file_uploader("Sube un archivo de audio", type=["wav"])
 
 # Función para realizar predicciones
 def hacer_prediccion(audio_data):
-    # Preprocesar audio_data según las necesidades de tu modelo
     audio, _ = librosa.load(audio_data, sr=16000, duration=1)
     spectrogram = librosa.feature.melspectrogram(y=audio, sr=16000)
     input_data = np.expand_dims(spectrogram, axis=0)
 
-    # Realizar la predicción utilizando el modelo cargado
     prediction = model.predict(input_data)[0]
 
     # Decodificar la salida one-hot a etiquetas de texto
@@ -39,7 +33,6 @@ def hacer_prediccion(audio_data):
 
     return predictions
 
-# Botón para iniciar la predicción
 if uploaded_file:
     st.write("Reproduciendo archivo de audio...")
     st.audio(uploaded_file, format="audio/wav")
