@@ -53,7 +53,7 @@ def hacer_prediccion(audio_data):
 if uploaded_file:
     st.write("Procesando el archivo de audio largo...")
     st.audio(uploaded_file, format="audio/wav")
-    predictions_per_second = hacer_predicciones(uploaded_file)
+    predictions_per_second = hacer_prediccion(uploaded_file)
 
     st.write("Predicciones por segundo:")
     for i, segment_predictions in enumerate(predictions_per_second):
