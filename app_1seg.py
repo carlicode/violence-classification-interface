@@ -44,7 +44,11 @@ def hacer_prediccion(audio_data):
         
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
-            segment_predictions.append((label, conf * 100))
+            if conf >= 70:
+                segment_predictions.append((label, conf * 100))
+        
+        if not segment_predictions:
+            segment_predictions.append(("No se identificaron etiquetas", 0))
         
         predictions.append(segment_predictions)
 
