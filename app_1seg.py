@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 import soundfile as sf
 import io
 
-model = tf.keras.models.load_model('experimento3.h5')
+model = tf.keras.models.load_model('experimento.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
 label_encoder = LabelEncoder()
@@ -44,7 +44,7 @@ def hacer_prediccion(audio_data):
         
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
-            if conf >= 0.8:
+            if conf >= 0.85:
                 segment_predictions.append((label, conf * 100))
         
         if not segment_predictions:
