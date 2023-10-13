@@ -16,11 +16,12 @@ st.title('Detector de Audio')
 
 uploaded_file = st.file_uploader("Sube un archivo de audio largo", type=["wav"])
 
+# Función para realizar predicciones en segmentos de un segundo
 def hacer_prediccion(audio_data):
     audio, _ = librosa.load(audio_data, sr=16000)
 
     # Dividir el audio en segmentos de 1 segundo
-    segment_duration = 4
+    segment_duration = 1  # Duración de cada segmento en segundos
     samples_per_segment = int(16000 * segment_duration)
     num_segments = len(audio) // samples_per_segment
 
@@ -43,7 +44,7 @@ def hacer_prediccion(audio_data):
         
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
-            if conf >= 0.8:
+            if conf >= 0.9:
                 segment_predictions.append((label, conf * 100))
         
         if not segment_predictions:
