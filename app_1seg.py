@@ -21,7 +21,7 @@ def hacer_prediccion(audio_data):
     audio, _ = librosa.load(audio_data, sr=16000)
 
     # Dividir el audio en segmentos de 1 segundo
-    segment_duration = 2  # Duración de cada segmento en segundos
+    segment_duration = 1  # Duración de cada segmento en segundos
     samples_per_segment = int(16000 * segment_duration)
     num_segments = len(audio) // samples_per_segment
 
