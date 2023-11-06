@@ -23,7 +23,7 @@ def hacer_prediccion(audio_data):
     samples_per_segment = int(16000 * segment_duration)
     num_segments = len(audio) // samples_per_segment
 
-    data = {"Número de Segundo": [], "Etiqueta": [], "Confianza": []}
+    data = []
 
     for i in range(num_segments):
         start_sample = i * samples_per_segment
@@ -40,15 +40,12 @@ def hacer_prediccion(audio_data):
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
             if conf >= 0.75:
-                segment_predictions.append((label, conf * 100))
+                segment_predictions.append((i + 1, label, conf * 100))
 
         if not segment_predictions:
-            segment_predictions.append(("No se identificaron etiquetas", 0))
+            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0))
 
-        for label, conf in segment_predictions:
-            data["Número de Segundo"].append(i + 1)
-            data["Etiqueta"].append(label)
-            data["Confianza"].append(conf)
+        data.extend(segment_predictions)
 
     return data
 
@@ -57,6 +54,6 @@ if uploaded_file:
     st.audio(uploaded_file, format="audio/wav")
     predictions_per_second = hacer_prediccion(uploaded_file)
 
-    st.write("Tabla de Predicciones:")
-    prediction_df = pd.DataFrame(predictions_per_second)
-    st.dataframe(prediction_df)
+    st.write("Predicciones por segundo:")
+    predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza"])
+    st.table(predictions_df)
