@@ -18,7 +18,7 @@ def calculate_loudness_per_second(audio_file):
     except Exception as e:
         return None
 
-audio_file = 'audio.wav'
+audio_file = 'test.wav'
 loudness_values = calculate_loudness_per_second(audio_file)
 
 if loudness_values is not None:
