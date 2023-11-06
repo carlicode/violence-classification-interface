@@ -17,7 +17,6 @@ st.title('Detector de Audio')
 
 uploaded_file = st.file_uploader("Subir un archivo de audio largo", type=["wav"])
 
-# Función para calcular el loudness
 def calcular_loudness(segment):
     audio = AudioSegment.from_numpy_array(segment, frame_rate=16000, sample_width=2, channels=1)
     loudness = audio.rms
@@ -37,7 +36,6 @@ def hacer_prediccion(audio_data):
         end_sample = (i + 1) * samples_per_segment
         segment = audio[start_sample:end_sample]
 
-        # Calcular el loudness del segmento
         loudness = calcular_loudness(segment)
 
         spectrogram = librosa.feature.melspectrogram(y=segment, sr=16000)
