@@ -15,7 +15,7 @@ label_encoder.fit(labels)
 
 st.title('Detector de Audio')
 
-uploaded_file = st.file_uploader("Sube un archivo de audio largo", type=["wav"])
+uploaded_file = st.file_uploader("Subir un archivo de audio largo", type=["wav"])
 
 # Función para calcular el loudness
 def calcular_loudness(segment):
