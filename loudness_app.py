@@ -47,7 +47,7 @@ def hacer_prediccion(audio_data):
 
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
-            if conf >= 0.60:
+            if conf >= 0.5:
                 segment_predictions.append((i + 1, label, conf * 100, loudness))
 
         if not segment_predictions:
