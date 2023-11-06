@@ -48,7 +48,7 @@ def hacer_prediccion(audio_data):
 
         prediction = model.predict(input_data)[0]
 
-        decoded_labels = label_encoder.inverse_transform(range(len(labels))
+        decoded_labels = label_encoder.inverse_transform(range(len(labels)))
 
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
