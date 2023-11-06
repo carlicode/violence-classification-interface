@@ -7,7 +7,6 @@ import soundfile as sf
 import pandas as pd
 from pydub import AudioSegment 
 
-
 model = tf.keras.models.load_model('experimento.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
