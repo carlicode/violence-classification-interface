@@ -1,11 +1,11 @@
-import streamlit as st
+import pydub
 import tensorflow as tf
 import numpy as np
 import librosa
 from sklearn.preprocessing import LabelEncoder
 import soundfile as sf
 import pandas as pd
-from pydub import AudioSegment 
+import streamlit as st
 
 model = tf.keras.models.load_model('experimento.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
@@ -18,7 +18,12 @@ st.title('Detector de Audio')
 uploaded_file = st.file_uploader("Subir un archivo de audio largo", type=["wav"])
 
 def calcular_loudness(segment):
-    audio = AudioSegment.from_numpy_array(segment, frame_rate=16000, sample_width=2, channels=1)
+    audio = pydub.AudioSegment(
+        segment.tobytes(),
+        frame_rate=16000,
+        sample_width=segment.sample_width,
+        channels=segment.channels
+    )
     loudness = audio.rms
     return loudness
 
@@ -43,7 +48,7 @@ def hacer_prediccion(audio_data):
 
         prediction = model.predict(input_data)[0]
 
-        decoded_labels = label_encoder.inverse_transform(range(len(labels)))
+        decoded_labels = label_encoder.inverse_transform(range(len(labels))
 
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
