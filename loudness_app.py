@@ -8,6 +8,7 @@ import pandas as pd
 from pydub import AudioSegment
 from io import BytesIO
 import matplotlib.pyplot as plt
+import speech_recognition as sr
 
 model = tf.keras.models.load_model('experimento.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
@@ -31,6 +32,24 @@ def calcular_loudness(segment):
     loudness = audio.rms
     return loudness
 
+def transcribir_audio(segment):
+    buffer = BytesIO()
+    sf.write(buffer, segment, 16000, subtype='PCM_16', format='wav')
+    buffer.seek(0)
+
+    audio = AudioSegment.from_wav(buffer)
+
+    recognizer = sr.Recognizer()
+    with sr.AudioFile(audio.export(format="wav")) as source:
+        audio_data = recognizer.record(source, duration=5)  # Transcribir 5 segundos del audio
+        try:
+            transcription = recognizer.recognize_google(audio_data, language="es-ES")
+            return transcription
+        except sr.UnknownValueError:
+            return ""
+        except sr.RequestError:
+            return "Error"
+
 def hacer_prediccion(audio_data):
     audio, _ = librosa.load(audio_data, sr=16000)
 
@@ -48,6 +67,8 @@ def hacer_prediccion(audio_data):
         loudness = calcular_loudness(segment)
         loudness_values.append(loudness)
 
+        transcription = transcribir_audio(segment)
+
         spectrogram = librosa.feature.melspectrogram(y=segment, sr=16000)
         input_data = np.expand_dims(spectrogram, axis=0)
 
@@ -58,13 +79,12 @@ def hacer_prediccion(audio_data):
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
             if conf >= 0.5:
-                segment_predictions.append((i + 1, label, conf * 100, loudness))
+                segment_predictions.append((i + 1, label, conf * 100, loudness, transcription))
 
         if not segment_predictions:
-            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0, loudness))
+            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0, loudness, transcription))
 
         data.extend(segment_predictions)
-
 
     return data
 
@@ -82,6 +102,7 @@ if uploaded_file:
     predictions_per_second = hacer_prediccion(uploaded_file)
 
     st.write("Predicciones por segundo:")
-    predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza", "Loudness"])
-    st.table(predictions_df)
+    predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto"])
+    
+    st.table(predictions_df[["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto"]])
     crear_grafico_loudness(loudness_values)
