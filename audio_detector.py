@@ -1,13 +1,10 @@
-import streamlit as st
 import tensorflow as tf
 import numpy as np
 import librosa
 from sklearn.preprocessing import LabelEncoder
 import soundfile as sf
-import pandas as pd
 from pydub import AudioSegment
 from io import BytesIO
-import matplotlib.pyplot as plt
 import speech_recognition as sr
 
 model = tf.keras.models.load_model('experimento.h5')
@@ -79,10 +76,10 @@ def hacer_prediccion(audio_data):
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
             if conf >= 0.5:
-                segment_predictions.append((i + 1, label, conf * 100, loudness, transcription, "", ""))  # Agregar dos columnas vacías
+                segment_predictions.append((i + 1, label, conf * 100, loudness, transcription))
 
         if not segment_predictions:
-            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0, loudness, transcription, "", ""))  # Agregar dos columnas vacías
+            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0, loudness, transcription))
 
         data.extend(segment_predictions)
 
@@ -107,33 +104,10 @@ def modificar_etiqueta(dataframe):
             etiquetas_modificadas += 1
         else:
             analisis.append(etiqueta)
-
-    dataframe["Análisis"] = analisis
-
+    
+    dataframe["analisis"] = analisis
+    
     # Imprime el número de etiquetas modificadas
-    st.write(f"Se modificaron {etiquetas_modificadas} etiquetas a 'people_talking.")
-
+    st.write(f"Se modificaron {etiquetas_modificadas} etiquetas a 'people_talking'.")
+    
     return dataframe
-
-if uploaded_file:
-    st.write("Procesando el archivo de audio largo...")
-    st.audio(uploaded_file, format="audio/wav")
-    predictions_per_second = hacer_prediccion(uploaded_file)
-
-    st.write("Predicciones por segundo:")
-    predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto", "DB embedding", "Embedding distancia"])
-
-    # Llama a la función para modificar las etiquetas y crea la columna "analisis"
-    predictions_df = modificar_etiqueta(predictions_df)
-
-    st.table(predictions_df[["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto", "Análisis", "DB embedding", "Embedding distancia"]])
-
-    # Obtiene el número de etiquetas modificadas
-    etiquetas_modificadas = predictions_df[predictions_df["Etiqueta"] != predictions_df["Análisis"]].shape[0]
-
-    # Imprime el número de etiquetas modificadas en Streamlit
-    filas = predictions_df.shape[0]
-    porcentaje = int(etiquetas_modificadas / filas * 100)
-    st.write(f"Número de etiquetas modificadas a 'people_talking': {etiquetas_modificadas} / {filas} que representa el {porcentaje} %")
-
-    crear_grafico_loudness(loudness_values)
