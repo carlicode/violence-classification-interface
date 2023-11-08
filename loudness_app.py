@@ -10,10 +10,10 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import speech_recognition as sr
 
-model = tf.keras.models.load_model('experimento.h5')
+model = tf.keras.models.load_model('experimento6.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
-loudness_values = []  # Almacenar los valores de loudness a lo largo del tiempo
+loudness_values = []  
 
 label_encoder = LabelEncoder()
 label_encoder.fit(labels)
@@ -89,7 +89,6 @@ def hacer_prediccion(audio_data):
     return data
 
 def crear_grafico_loudness(loudness_values):
-    # Crear un gráfico de loudness a lo largo del tiempo
     plt.figure(figsize=(10, 5))
     plt.plot(range(len(loudness_values)), loudness_values)
     plt.xlabel("Tiempo (segmentos)")
@@ -98,7 +97,7 @@ def crear_grafico_loudness(loudness_values):
 
 def modificar_etiqueta(dataframe):
     analisis = []
-    etiquetas_modificadas = 0  # Contador para etiquetas modificadas
+    etiquetas_modificadas = 0  
     for index, row in dataframe.iterrows():
         texto = row["Texto"]
         etiqueta = row["Etiqueta"]
@@ -110,7 +109,6 @@ def modificar_etiqueta(dataframe):
     
     dataframe["Análisis"] = analisis
     
-    # Imprime el número de etiquetas modificadas
     st.write(f"Se modificaron {etiquetas_modificadas} etiquetas a 'people_talking'.")
     
     return dataframe
@@ -123,15 +121,12 @@ if uploaded_file:
     st.write("Predicciones por segundo:")
     predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto"])
     
-    # Llama a la función para modificar las etiquetas y crea la columna "analisis"
     predictions_df = modificar_etiqueta(predictions_df)
     
     st.table(predictions_df[["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto", "Análisis"]])
     
-    # Obtiene el número de etiquetas modificadas
     etiquetas_modificadas = predictions_df[predictions_df["Etiqueta"] != predictions_df["Análisis"]].shape[0]
     
-    # Imprime el número de etiquetas modificadas en Streamlit
     filas = predictions_df.shape[0]
     porcentaje = int(etiquetas_modificadas/filas*100)
     st.write(f"Número de etiquetas modificadas a 'people_talking': {etiquetas_modificadas} / {filas} que representa el {porcentaje} %")
