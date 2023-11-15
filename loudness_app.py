@@ -10,7 +10,7 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import speech_recognition as sr
 
-model = tf.keras.models.load_model('experimento6.h5')
+model = tf.keras.models.load_model('experimento_7.h5')
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
 loudness_values = []  
@@ -41,7 +41,7 @@ def transcribir_audio(segment):
 
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio.export(format="wav")) as source:
-        audio_data = recognizer.record(source, duration=5)  # Transcribir 5 segundos del audio
+        audio_data = recognizer.record(source, duration=3)  # Transcribir 5 segundos del audio
         try:
             transcription = recognizer.recognize_google(audio_data, language="es-ES")
             return transcription
@@ -53,7 +53,7 @@ def transcribir_audio(segment):
 def hacer_prediccion(audio_data):
     audio, _ = librosa.load(audio_data, sr=16000)
 
-    segment_duration = 1
+    segment_duration = 2
     samples_per_segment = int(16000 * segment_duration)
     num_segments = len(audio) // samples_per_segment
 
@@ -78,11 +78,11 @@ def hacer_prediccion(audio_data):
 
         segment_predictions = []
         for label, conf in zip(decoded_labels, prediction):
-            if conf >= 0.5:
-                segment_predictions.append((i + 1, label, conf * 100, loudness, transcription))
+            if conf >= 0.4:
+                segment_predictions.append(("people_talking" if label == "people_talking" else label, conf * 100, loudness, transcription, segment))
 
         if not segment_predictions:
-            segment_predictions.append((i + 1, "No se identificaron etiquetas", 0, loudness, transcription))
+            segment_predictions.append(("No se identificaron etiquetas", 0, loudness, transcription, segment))
 
         data.extend(segment_predictions)
 
@@ -95,44 +95,24 @@ def crear_grafico_loudness(loudness_values):
     plt.ylabel("Loudness")
     st.pyplot(plt)
 
-def modificar_etiqueta(dataframe):
-    analisis = []
-    etiquetas_modificadas = 0  
-    for index, row in dataframe.iterrows():
-        texto = row["Texto"]
-        etiqueta = row["Etiqueta"]
-        if texto and etiqueta != "people_talking":
-            analisis.append("people_talking")
-            etiquetas_modificadas += 1
-        else:
-            analisis.append(etiqueta)
-    
-    dataframe["Análisis"] = analisis
-    
-    st.write(f"Se modificaron {etiquetas_modificadas} etiquetas a 'people_talking'.")
-    
-    return dataframe
-
 if uploaded_file:
     st.write("Procesando el archivo de audio largo...")
+
     st.audio(uploaded_file, format="audio/wav")
     predictions_per_second = hacer_prediccion(uploaded_file)
-
+    
     st.write("Predicciones por segundo:")
-    predictions_df = pd.DataFrame(predictions_per_second, columns=["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto"])
+    predictions_df = pd.DataFrame(predictions_per_second, columns=["Etiqueta", "Confianza", "Loudness", "Texto", "Fragmento"])
     
-    predictions_df = modificar_etiqueta(predictions_df)
+    predictions_df["Análisis"] = ["people_talking" if texto else "" for texto in predictions_df["Texto"]]
     
-    st.table(predictions_df[["Segundo", "Etiqueta", "Confianza", "Loudness", "Texto", "Análisis"]])
-    
-    etiquetas_modificadas = predictions_df[predictions_df["Etiqueta"] != predictions_df["Análisis"]].shape[0]
-    
-    filas = predictions_df.shape[0]
-    porcentaje = int(etiquetas_modificadas/filas*100)
-    st.write(f"Número de etiquetas modificadas a 'people_talking': {etiquetas_modificadas} / {filas} que representa el {porcentaje} %")
-    
+    # Mostrar el fragmento de audio en la tabla
+    for index, row in predictions_df.iterrows():
+        st.audio(row["Fragmento"], sample_rate=16000, format="audio/wav")
+        st.table(row[["Etiqueta", "Confianza", "Loudness", "Texto", "Análisis"]])
+
     crear_grafico_loudness(loudness_values)
-    embeddings_db = predictions_df[["Segundo","Loudness", "Texto"]]
+    embeddings_db = predictions_df[["Loudness", "Texto"]]
     embeddings_db["Embeddings"] = None
     embeddings_db["Distancia"] = None
 
