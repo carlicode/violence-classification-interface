@@ -10,10 +10,13 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import speech_recognition as sr
 
-model = tf.keras.models.load_model('experimento_7.h5')
+model = tf.keras.models.load_model('experimento_11_Plateau.h5')
+
 labels = ["crying", "glass_breaking", "screams", "gun_shot", "people_talking"]
 
-loudness_values = []  
+loudness_values = []
+predictions_list = [] 
+labels_list = [] 
 
 label_encoder = LabelEncoder()
 label_encoder.fit(labels)
@@ -73,13 +76,16 @@ def hacer_prediccion(audio_data):
         input_data = np.expand_dims(spectrogram, axis=0)
 
         prediction = model.predict(input_data)[0]
-
+        
         decoded_labels = label_encoder.inverse_transform(range(len(labels)))
 
         segment_predictions = []
+
         for label, conf in zip(decoded_labels, prediction):
+            predictions_list.append(prediction)
+            labels_list.append(decoded_labels) 
             if conf >= 0.4:
-                segment_predictions.append(("people_talking" if label == "people_talking" else label, conf * 100, loudness, transcription, segment))
+                segment_predictions.append((label, conf, loudness, transcription, segment))
 
         if not segment_predictions:
             segment_predictions.append(("No se identificaron etiquetas", 0, loudness, transcription, segment))
@@ -104,12 +110,11 @@ if uploaded_file:
     st.write("Predicciones por segundo:")
     predictions_df = pd.DataFrame(predictions_per_second, columns=["Etiqueta", "Confianza", "Loudness", "Texto", "Fragmento"])
     
-    predictions_df["Análisis"] = ["people_talking" if texto else "" for texto in predictions_df["Texto"]]
-    
-    # Mostrar el fragmento de audio en la tabla
+
     for index, row in predictions_df.iterrows():
         st.audio(row["Fragmento"], sample_rate=16000, format="audio/wav")
-        st.table(row[["Etiqueta", "Confianza", "Loudness", "Texto", "Análisis"]])
+        st.table(row[["Etiqueta", "Confianza", "Loudness", "Texto"]])
+ 
 
     crear_grafico_loudness(loudness_values)
     embeddings_db = predictions_df[["Loudness", "Texto"]]
