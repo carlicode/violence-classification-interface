@@ -1,0 +1,18 @@
+[32mINFO[0m:     [03-12-2023 19:43:29] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component System
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component OpenTelemetryClient
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component SimpleAssignmentPolicy
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component SqliteDB
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component Posthog
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component LocalSegmentManager
+[36mDEBUG[0m:    [03-12-2023 19:43:29] Starting component SegmentAPI
+[32mINFO[0m:     [03-12-2023 19:43:30] Started server process [[36m2504[0m]
+[32mINFO[0m:     [03-12-2023 19:43:30] Waiting for application startup.
+[32mINFO[0m:     [03-12-2023 19:43:30] Application startup complete.
+[32mINFO[0m:     [03-12-2023 19:43:30] Uvicorn running on [1mhttp://localhost:8000[0m (Press CTRL+C to quit)
+[32mINFO[0m:     [03-12-2023 19:43:57] ::1:52045 - "GET / HTTP/1.1" 404
+[32mINFO[0m:     [03-12-2023 19:43:58] ::1:52045 - "GET /favicon.ico HTTP/1.1" 404
+[32mINFO[0m:     [03-12-2023 19:45:40] Shutting down
+[32mINFO[0m:     [03-12-2023 19:45:40] Waiting for application shutdown.
+[32mINFO[0m:     [03-12-2023 19:45:40] Application shutdown complete.
+[32mINFO[0m:     [03-12-2023 19:45:40] Finished server process [[36m2504[0m]
