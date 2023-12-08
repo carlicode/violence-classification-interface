@@ -19,5 +19,3 @@ def query_collection(input_text):
         distance = 0
 
     return documents, distance
-
-

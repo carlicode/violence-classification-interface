@@ -8,11 +8,9 @@ def query_collection(input_text):
         return 0, ""
 
     df = pd.read_csv('embeddings.csv')
-    sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name='all-MiniLM-L6-v2')
-    chroma_client = chromadb.Client()
 
     client_persistent = chromadb.PersistentClient(path='data_embeddings')
-    db = client_persistent.create_collection(name='eamples_DB', embedding_function=sentence_transformer_ef)
+    db = client_persistent.create_collection(name='violence_embeddings_DB', metadata={"hnsw:space": "cosine"})
     db.add(
         ids=[str(id) for id in df['ids'].tolist()],
         documents=df['examples'].tolist(),
